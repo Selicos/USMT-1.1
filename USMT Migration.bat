@@ -105,7 +105,7 @@ IF %EUSERNA% equ 0 GOTO EXPORTTARGETUSER
 :: 		There is a better list of these arguments from MSFT or on other sites, see the link in line 5 above but:
 :: [store directory] is the file location for the exported migration file. This should be the local path C:\USMT
 :: [user account restrictions for migration]
-::	  /UI is users to include. This uses the input user account from above for the PFCUHQ domain.
+::	  /UI is users to include. This uses the input user account from above for the [domain].
 ::	  /UE is users to exclude. Althogh UI takes priority this is set to exlude all users on all domains (could also be "*\*" as in domain\user)
 ::	/o  is to overwrite any previous migration files at the store directory. This is helpful for testing but should be moot for one off PCs as it stores the file locally.
 ::	/c  is to continue upon non fatal errors. This was necessary as each setting or file that "fails" but is not critical prompts a non fatal error and cancels the entire process.
@@ -114,7 +114,7 @@ IF %EUSERNA% equ 0 GOTO EXPORTTARGETUSER
 ::  /localonly specifies migrating files only on the local PC regardless of xml config options. This will include only local disks not data on removable or mapped drives. 
 ::      The migration still includes mapped drives just not any data on them.
 
-psexec \\%Ecompname% -s %USMTDir%\%EArch%\scanstate.EXE c:\usmt\%Euserna% /ui:pfcuhq\%Euserna% /UE:* /o /c /i:%USMTDir%\%EArch%\miguser.xml /i:%USMTDir%\%EArch%\migapp.xml /localonly
+psexec \\%Ecompname% -s %USMTDir%\%EArch%\scanstate.EXE c:\usmt\%Euserna% /ui:[domain]\%Euserna% /UE:* /o /c /i:%USMTDir%\%EArch%\miguser.xml /i:%USMTDir%\%EArch%\migapp.xml /localonly
 :: Copy USMT MIG file to share.
 ROBOCOPY \\%Ecompname%\c$\usmt %StoreDir% /e
 :: Copy Chrome Bookmarks to share.
@@ -183,7 +183,7 @@ ROBOCOPY %StoreDir%\%IUSERNA% \\%Icompname%\c$\usmt\%IUSERNA% /mir
 ::  /i  specifies cofniguraton XML files and can be used many times to specify manyconfig files. 
 ::      This is used for teh default migapp and miguser xml config files though this can bve set to a custom file if one is created for our environment.
 ::  [store directory] is the file location for the exported migration file. For the load state this is from the location where the ROBOCOPY command above copied the specified users migration data.
-::	/ALL imports all users/settings/etc instead of just a specific user. If SCANSTATE is used to pick up all users (/UI:* or /UI:pfcuhq\*) all user profiles and data will be imported. 
+::	/ALL imports all users/settings/etc instead of just a specific user. If SCANSTATE is used to pick up all users (/UI:* or /UI:[domain]\*) all user profiles and data will be imported. 
 ::	/c  is to continue upon non fatal errors. This was necessary as each setting or file that "fails" prompts a non fatal error and cancels the entire process.
 
 PSEXEC \\%ICOMPNAME% -S %USMTDir%\%IArch%\loadstate.EXE /i:%USMTDir%\%IArch%\migAPP.xml /i:%USMTDir%\%IArch%\migUSER.xml c:\usmt\%IUSERNA% /ALL /C
